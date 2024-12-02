@@ -1,0 +1,16 @@
+{
+	"name": "advent_of_code_2024",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"shutdownAction": "stopContainer",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"dbaeumer.vscode-eslint",
+				"esbenp.prettier-vscode",
+				"streetsidesoftware.code-spell-checker"
+			]
+		}
+	}
+}
