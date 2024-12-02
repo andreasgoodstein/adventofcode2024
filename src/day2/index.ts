@@ -7,23 +7,34 @@ const readData = (): number[][] =>
     line.split(" ").map((number) => Number.parseInt(number, 10))
   );
 
+const isLevelUnsafe = (
+  isIncreasing: boolean,
+  first: number,
+  second: number
+): boolean =>
+  (isIncreasing && first >= second) ||
+  (!isIncreasing && first <= second) ||
+  Math.abs(first - second) > 3;
+
+const isReportUnsafe = (report: number[]): boolean => {
+  const isReportIncreasing = report[0] < report[1];
+
+  for (let n = 1; n < report.length; n++) {
+    if (isLevelUnsafe(isReportIncreasing, report[n - 1], report[n])) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 const solveFirst = (): number => {
   const data = readData();
 
   let safeReportCount = 0;
   data.forEach((report) => {
-    const isReportIncreasing = report[0] < report[1];
-
-    for (let n = 1; n < report.length; n++) {
-      if (isReportIncreasing && report[n] <= report[n - 1]) {
-        return;
-      }
-      if (!isReportIncreasing && report[n] >= report[n - 1]) {
-        return;
-      }
-      if (Math.abs(report[n] - report[n - 1]) > 3) {
-        return;
-      }
+    if (isReportUnsafe(report)) {
+      return;
     }
 
     safeReportCount += 1;
@@ -32,4 +43,29 @@ const solveFirst = (): number => {
   return safeReportCount;
 };
 
-console.log(solveFirst());
+const solveSecond = (): number => {
+  const data = readData();
+
+  let safeReportCount = 0;
+  data.forEach((report) => {
+    if (!isReportUnsafe(report)) {
+      safeReportCount += 1;
+      return;
+    }
+
+    const alternativeReports = report.map((_, index) => {
+      const clone = [...report];
+      clone.splice(index, 1);
+
+      return clone;
+    });
+
+    if (alternativeReports.some((altReport) => !isReportUnsafe(altReport))) {
+      safeReportCount += 1;
+    }
+  });
+
+  return safeReportCount;
+};
+
+console.log(solveSecond());
