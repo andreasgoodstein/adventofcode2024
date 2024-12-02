@@ -1,6 +1,7 @@
 // https://adventofcode.com/2024/day/2
 
 import { readFile } from "../tools/readFile.js";
+import { timeFunction } from "../tools/timeFunction.js";
 
 const readData = (): number[][] =>
   readFile("day2/problem.txt").map((line) =>
@@ -28,9 +29,7 @@ const isReportUnsafe = (report: number[]): boolean => {
   return false;
 };
 
-const solveFirst = (): number => {
-  const data = readData();
-
+const solveFirst = (data: number[][]): number => {
   let safeReportCount = 0;
   data.forEach((report) => {
     if (isReportUnsafe(report)) {
@@ -43,9 +42,7 @@ const solveFirst = (): number => {
   return safeReportCount;
 };
 
-const solveSecond = (): number => {
-  const data = readData();
-
+const solveSecond = (data: number[][]): number => {
   let safeReportCount = 0;
   data.forEach((report) => {
     if (!isReportUnsafe(report)) {
@@ -68,4 +65,5 @@ const solveSecond = (): number => {
   return safeReportCount;
 };
 
-console.log(solveSecond());
+const data = readData();
+console.log(timeFunction(() => solveSecond(data)));

@@ -1,6 +1,7 @@
 // https://adventofcode.com/2024/day/1
 
 import { readFile } from "../tools/readFile.js";
+import { timeFunction } from "../tools/timeFunction.js";
 
 const readData = () =>
   readFile("day1/problem.txt").map((line) =>
@@ -10,9 +11,7 @@ const readData = () =>
       .map((number) => Number.parseInt(number, 10))
   );
 
-const solveFirst = (): number => {
-  const data = readData();
-
+const solveFirst = (data: number[][]): number => {
   const firstList: number[] = [];
   const secondList: number[] = [];
 
@@ -32,9 +31,7 @@ const solveFirst = (): number => {
   return differenceSum;
 };
 
-const solveSecond = (): number => {
-  const data = readData();
-
+const solveSecond = (data: number[][]): number => {
   const firstList: number[] = [];
   const secondMap: Record<number, number> = [];
 
@@ -51,4 +48,5 @@ const solveSecond = (): number => {
   return differenceSum;
 };
 
-console.log(solveSecond());
+const data = readData();
+console.log(timeFunction(() => solveSecond(data)));
