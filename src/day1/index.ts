@@ -1,3 +1,5 @@
+// https://adventofcode.com/2024/day/1
+
 import { readFile } from "../tools/readFile.js";
 
 const readData = () =>
@@ -8,7 +10,7 @@ const readData = () =>
       .map((number) => Number.parseInt(number, 10))
   );
 
-export const solveFirst = (): number => {
+const solveFirst = (): number => {
   const data = readData();
 
   const firstList: number[] = [];
@@ -30,4 +32,23 @@ export const solveFirst = (): number => {
   return differenceSum;
 };
 
-console.log(solveFirst());
+const solveSecond = (): number => {
+  const data = readData();
+
+  const firstList: number[] = [];
+  const secondMap: Record<number, number> = [];
+
+  data.forEach((line) => {
+    firstList.push(line[0]);
+    secondMap[line[1]] = (secondMap[line[1]] ?? 0) + 1;
+  });
+
+  let differenceSum = 0;
+  firstList.forEach((number) => {
+    differenceSum += number * (secondMap[number] ?? 0);
+  });
+
+  return differenceSum;
+};
+
+console.log(solveSecond());
