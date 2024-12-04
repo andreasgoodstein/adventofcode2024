@@ -29,6 +29,10 @@ const solve2 = (data: string) => {
 
   dontSplits.forEach((split) => {
     const doIndex = split.indexOf("do()");
+    if (doIndex < 0) {
+      return;
+    }
+
     sum += solve1(split.slice(doIndex));
   });
 
