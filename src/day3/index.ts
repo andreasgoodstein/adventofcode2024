@@ -21,4 +21,18 @@ const solve1 = (data: string) => {
   return sum;
 };
 
-console.log(timeFunction(() => solve1(readData())));
+const solve2 = (data: string) => {
+  const dontSplits = data.split("don't()");
+
+  let sum = 0;
+  sum += solve1(dontSplits.splice(0, 1)[0]);
+
+  dontSplits.forEach((split) => {
+    const doIndex = split.indexOf("do()");
+    sum += solve1(split.slice(doIndex));
+  });
+
+  return sum;
+};
+
+console.log(timeFunction(() => solve2(readData())));
