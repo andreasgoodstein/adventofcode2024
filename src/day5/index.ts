@@ -16,7 +16,7 @@ const solve1 = (rules: string[], pageList: string[]): number => {
     return mapSet;
   }, {});
 
-  const validPages: string[][] = [];
+  let validPageSum = 0;
   pageList.forEach((list) => {
     const pages = list.split(",");
 
@@ -29,16 +29,10 @@ const solve1 = (rules: string[], pageList: string[]): number => {
       }
     }
 
-    validPages.push(pages);
+    validPageSum += Number.parseInt(pages[Math.floor(pages.length / 2)], 10);
   });
 
-  const validPagesSum = validPages.reduce<number>(
-    (sum, pages) =>
-      sum + Number.parseInt(pages[Math.floor(pages.length / 2)], 10),
-    0
-  );
-
-  return validPagesSum;
+  return validPageSum;
 };
 
 const solve2 = () => {};
