@@ -8,10 +8,6 @@ enum Direction {
   LEFT = "LEFT",
 }
 
-const data: string[][] = readFile("day6/sample.txt").map((line) =>
-  line.split("")
-);
-
 const findStart = (data: string[][]): [number, number] => {
   let guardX = -1;
   let guardY = -1;
@@ -39,7 +35,7 @@ const followPath = (data: string[][], start: [number, number]) => {
 
   let isCycle = false;
   const seenCoordinates = new Set<string>();
-  const seenDirections = new Map<string, Direction>();
+  const seenDirections = new Map<string, Direction[]>();
 
   while (
     guardY > -1 &&
@@ -50,8 +46,10 @@ const followPath = (data: string[][], start: [number, number]) => {
   ) {
     switch (direction) {
       case Direction.UP: {
+        let coordinate = "";
+
         while (data[guardY][guardX] !== "#") {
-          const coordinate = `${guardX},${guardY}`;
+          coordinate = `${guardX},${guardY}`;
           isCycle =
             seenCoordinates.has(coordinate) &&
             (seenDirections.get(coordinate)?.includes(direction) ?? false);
@@ -60,7 +58,10 @@ const followPath = (data: string[][], start: [number, number]) => {
           }
 
           seenCoordinates.add(coordinate);
-          seenDirections.set(coordinate, direction);
+          seenDirections.set(coordinate, [
+            ...(seenDirections.get(coordinate) ?? []),
+            direction,
+          ]);
 
           guardY -= 1;
           if (guardY < 0) {
@@ -72,14 +73,20 @@ const followPath = (data: string[][], start: [number, number]) => {
         }
 
         guardY += 1;
+        seenDirections.set(
+          coordinate,
+          seenDirections.get(coordinate)?.filter((dir) => dir !== direction) ??
+            []
+        );
         direction = Direction.RIGHT;
-        seenDirections.delete(`${guardX},${guardY}`);
         break;
       }
 
       case Direction.DOWN: {
+        let coordinate = "";
+
         while (data[guardY][guardX] !== "#") {
-          const coordinate = `${guardX},${guardY}`;
+          coordinate = `${guardX},${guardY}`;
           isCycle =
             seenCoordinates.has(coordinate) &&
             (seenDirections.get(coordinate)?.includes(direction) ?? false);
@@ -88,7 +95,10 @@ const followPath = (data: string[][], start: [number, number]) => {
           }
 
           seenCoordinates.add(coordinate);
-          seenDirections.set(coordinate, direction);
+          seenDirections.set(coordinate, [
+            ...(seenDirections.get(coordinate) ?? []),
+            direction,
+          ]);
 
           guardY += 1;
           if (guardY === data.length) {
@@ -100,14 +110,20 @@ const followPath = (data: string[][], start: [number, number]) => {
         }
 
         guardY -= 1;
+        seenDirections.set(
+          coordinate,
+          seenDirections.get(coordinate)?.filter((dir) => dir !== direction) ??
+            []
+        );
         direction = Direction.LEFT;
-        seenDirections.delete(`${guardX},${guardY}`);
         break;
       }
 
       case Direction.LEFT: {
+        let coordinate = "";
+
         while (data[guardY][guardX] !== "#") {
-          const coordinate = `${guardX},${guardY}`;
+          coordinate = `${guardX},${guardY}`;
           isCycle =
             seenCoordinates.has(coordinate) &&
             (seenDirections.get(coordinate)?.includes(direction) ?? false);
@@ -116,7 +132,10 @@ const followPath = (data: string[][], start: [number, number]) => {
           }
 
           seenCoordinates.add(coordinate);
-          seenDirections.set(coordinate, direction);
+          seenDirections.set(coordinate, [
+            ...(seenDirections.get(coordinate) ?? []),
+            direction,
+          ]);
 
           guardX -= 1;
           if (guardX < 0) {
@@ -128,14 +147,20 @@ const followPath = (data: string[][], start: [number, number]) => {
         }
 
         guardX += 1;
+        seenDirections.set(
+          coordinate,
+          seenDirections.get(coordinate)?.filter((dir) => dir !== direction) ??
+            []
+        );
         direction = Direction.UP;
-        seenDirections.delete(`${guardX},${guardY}`);
         break;
       }
 
       case Direction.RIGHT: {
+        let coordinate = "";
+
         while (data[guardY][guardX] !== "#") {
-          const coordinate = `${guardX},${guardY}`;
+          coordinate = `${guardX},${guardY}`;
           isCycle =
             seenCoordinates.has(coordinate) &&
             (seenDirections.get(coordinate)?.includes(direction) ?? false);
@@ -144,7 +169,10 @@ const followPath = (data: string[][], start: [number, number]) => {
           }
 
           seenCoordinates.add(coordinate);
-          seenDirections.set(coordinate, direction);
+          seenDirections.set(coordinate, [
+            ...(seenDirections.get(coordinate) ?? []),
+            direction,
+          ]);
 
           guardX += 1;
           if (guardX === data[guardY].length) {
@@ -156,13 +184,17 @@ const followPath = (data: string[][], start: [number, number]) => {
         }
 
         guardX -= 1;
+        seenDirections.set(
+          coordinate,
+          seenDirections.get(coordinate)?.filter((dir) => dir !== direction) ??
+            []
+        );
         direction = Direction.DOWN;
-        seenDirections.delete(`${guardX},${guardY}`);
         break;
       }
 
       default:
-        break;
+        throw new Error("Impossible Direction");
     }
   }
 
@@ -172,7 +204,7 @@ const followPath = (data: string[][], start: [number, number]) => {
 const solve1 = (data: string[][]) => {
   const start = findStart(data);
 
-  return followPath(data, start);
+  return followPath(data, start).seenCoordinates.size;
 };
 
 const solve2 = (data: string[][]) => {
@@ -180,9 +212,29 @@ const solve2 = (data: string[][]) => {
 
   const { seenCoordinates } = followPath(data, start);
 
-  const cycleCausingObstacles = [];
+  seenCoordinates.delete(`${start[0]},${start[1]}`);
 
-  return seenCoordinates.size;
+  let cycleCausingObstacleCount = 0;
+  seenCoordinates.forEach((coordinate) => {
+    const [x, y] = coordinate
+      .split(",")
+      .map((number) => Number.parseInt(number, 10));
+
+    data[y][x] = "#";
+
+    const { isCycle } = followPath(data, start);
+    if (isCycle) {
+      cycleCausingObstacleCount += 1;
+    }
+
+    data[y][x] = ".";
+  });
+
+  return cycleCausingObstacleCount;
 };
+
+const data: string[][] = readFile("day6/problem.txt").map((line) =>
+  line.split("")
+);
 
 console.log(timeFunction(() => solve2(data)));
