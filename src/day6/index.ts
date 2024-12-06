@@ -2,18 +2,17 @@ import { readFile } from "../tools/readFile.js";
 import { timeFunction } from "../tools/timeFunction.js";
 
 enum Direction {
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT,
+  UP = "UP",
+  RIGHT = "RIGHT",
+  DOWN = "DOWN",
+  LEFT = "LEFT",
 }
 
 const data: string[][] = readFile("day6/sample.txt").map((line) =>
   line.split("")
 );
 
-const solve1 = (data: string[][]): number => {
-  let direction = Direction.UP;
+const findStart = (data: string[][]): [number, number] => {
   let guardX = -1;
   let guardY = -1;
 
@@ -31,84 +30,134 @@ const solve1 = (data: string[][]): number => {
     }
   }
 
+  return [guardX, guardY];
+};
+
+const followPath = (data: string[][], start: [number, number]) => {
+  let direction = Direction.UP;
+  let [guardX, guardY] = start;
+
+  let isCycle = false;
   const seenCoordinates = new Set<string>();
+  const seenDirections = new Map<string, Direction>();
 
   while (
     guardY > -1 &&
     guardX > -1 &&
     guardY < data.length &&
-    guardX < data[guardY].length
+    guardX < data[guardY].length &&
+    !isCycle
   ) {
     switch (direction) {
       case Direction.UP: {
         while (data[guardY][guardX] !== "#") {
-          seenCoordinates.add(`${guardX},${guardY}`);
+          const coordinate = `${guardX},${guardY}`;
+          isCycle =
+            seenCoordinates.has(coordinate) &&
+            (seenDirections.get(coordinate)?.includes(direction) ?? false);
+          if (isCycle) {
+            break;
+          }
+
+          seenCoordinates.add(coordinate);
+          seenDirections.set(coordinate, direction);
 
           guardY -= 1;
           if (guardY < 0) {
             break;
           }
         }
-
-        if (guardY < 0) {
+        if (isCycle || guardY < 0) {
           break;
         }
+
         guardY += 1;
         direction = Direction.RIGHT;
+        seenDirections.delete(`${guardX},${guardY}`);
         break;
       }
 
       case Direction.DOWN: {
         while (data[guardY][guardX] !== "#") {
-          seenCoordinates.add(`${guardX},${guardY}`);
+          const coordinate = `${guardX},${guardY}`;
+          isCycle =
+            seenCoordinates.has(coordinate) &&
+            (seenDirections.get(coordinate)?.includes(direction) ?? false);
+          if (isCycle) {
+            break;
+          }
+
+          seenCoordinates.add(coordinate);
+          seenDirections.set(coordinate, direction);
 
           guardY += 1;
           if (guardY === data.length) {
             break;
           }
         }
-
-        if (guardY === data.length) {
+        if (isCycle || guardY === data.length) {
           break;
         }
+
         guardY -= 1;
         direction = Direction.LEFT;
+        seenDirections.delete(`${guardX},${guardY}`);
         break;
       }
 
       case Direction.LEFT: {
         while (data[guardY][guardX] !== "#") {
-          seenCoordinates.add(`${guardX},${guardY}`);
+          const coordinate = `${guardX},${guardY}`;
+          isCycle =
+            seenCoordinates.has(coordinate) &&
+            (seenDirections.get(coordinate)?.includes(direction) ?? false);
+          if (isCycle) {
+            break;
+          }
+
+          seenCoordinates.add(coordinate);
+          seenDirections.set(coordinate, direction);
 
           guardX -= 1;
           if (guardX < 0) {
             break;
           }
         }
-
-        if (guardX < 0) {
+        if (isCycle || guardX < 0) {
           break;
         }
+
         guardX += 1;
         direction = Direction.UP;
+        seenDirections.delete(`${guardX},${guardY}`);
         break;
       }
 
       case Direction.RIGHT: {
         while (data[guardY][guardX] !== "#") {
-          seenCoordinates.add(`${guardX},${guardY}`);
+          const coordinate = `${guardX},${guardY}`;
+          isCycle =
+            seenCoordinates.has(coordinate) &&
+            (seenDirections.get(coordinate)?.includes(direction) ?? false);
+          if (isCycle) {
+            break;
+          }
+
+          seenCoordinates.add(coordinate);
+          seenDirections.set(coordinate, direction);
 
           guardX += 1;
           if (guardX === data[guardY].length) {
             break;
           }
         }
-
-        if (guardX === data[guardY].length) {
+        if (isCycle || guardX === data[guardY].length) {
           break;
         }
+
         guardX -= 1;
         direction = Direction.DOWN;
+        seenDirections.delete(`${guardX},${guardY}`);
         break;
       }
 
@@ -117,7 +166,23 @@ const solve1 = (data: string[][]): number => {
     }
   }
 
+  return { isCycle, seenCoordinates };
+};
+
+const solve1 = (data: string[][]) => {
+  const start = findStart(data);
+
+  return followPath(data, start);
+};
+
+const solve2 = (data: string[][]) => {
+  const start = findStart(data);
+
+  const { seenCoordinates } = followPath(data, start);
+
+  const cycleCausingObstacles = [];
+
   return seenCoordinates.size;
 };
 
-console.log(timeFunction(() => solve1(data)));
+console.log(timeFunction(() => solve2(data)));
