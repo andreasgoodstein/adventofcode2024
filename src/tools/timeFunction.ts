@@ -1,6 +1,6 @@
 export const timeFunction = (
-  action: () => number | string
-): number | string => {
+  action: () => bigint | number | string
+): bigint | number | string => {
   console.time("runtime");
 
   const result = action();
