@@ -1,45 +1,54 @@
 import { readFile } from "../tools/readFile.js";
 import { timeFunction } from "../tools/timeFunction.js";
 
-const data = readFile("day11/problem.txt")[0]
-  .split(" ")
-  .map((number) => Number.parseInt(number, 10));
+const data = readFile("day11/problem.txt")[0].split(" ");
 
-const solve1 = () => {
-  let stones = [...data];
+const solve1 = (maxBlinks = 25) => {
+  let stones = data.reduce<Record<string, number>>(
+    (map, number) => ({ ...map, [number]: (map[number] ?? 0) + 1 }),
+    {}
+  );
 
-  for (let n = 0; n < 25; n++) {
-    const newStones: number[] = [];
+  for (let n = 0; n < maxBlinks; n++) {
+    const newStones: Record<string, number> = {};
 
-    stones.forEach((stone) => {
-      if (stone === 0) {
-        newStones.push(1);
+    Object.entries(stones).forEach(([value, count]) => {
+      if (value === "0") {
+        newStones["1"] = (newStones["1"] ?? 0) + count;
         return;
       }
 
-      const stoneString = stone.toString();
-      const stoneStringLength = stoneString.length;
-      if (stoneStringLength % 2 === 0) {
+      const valueLength = value.length;
+      if (valueLength % 2 === 0) {
         const leftValue = Number.parseInt(
-          stoneString.slice(0, stoneStringLength / 2),
+          value.slice(0, valueLength / 2),
           10
-        );
+        ).toString();
         const rightValue = Number.parseInt(
-          stoneString.slice(stoneStringLength / 2),
+          value.slice(valueLength / 2),
           10
-        );
+        ).toString();
 
-        newStones.push(leftValue, rightValue);
+        newStones[leftValue] = (newStones[leftValue] ?? 0) + count;
+        newStones[rightValue] = (newStones[rightValue] ?? 0) + count;
         return;
       }
 
-      newStones.push(stone * 2024);
+      const newValue = Number.parseInt(value, 10) * 2024;
+      newStones[newValue] = (newStones[newValue] ?? 0) + count;
     });
 
     stones = newStones;
   }
 
-  return stones.length;
+  const totalStones = Object.values(stones).reduce(
+    (sum, count) => sum + BigInt(count),
+    0n
+  );
+
+  return totalStones;
 };
 
-console.log(timeFunction(() => solve1()));
+const solve2 = () => solve1(75);
+
+console.log(timeFunction(() => solve2()));
