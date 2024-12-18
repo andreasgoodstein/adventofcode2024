@@ -6,7 +6,7 @@ const data = readFile("day10/problem.txt").map((line) =>
   line.split("").map((number) => Number.parseInt(number, 10))
 );
 
-const solve1 = (): number => {
+const solve1 = (enableSingleRoute = true): number => {
   // build graph
   const hill = new Graph();
 
@@ -74,7 +74,7 @@ const solve1 = (): number => {
 
       if (value === 9) {
         const edgeId = `${edge[0]},${edge[1]}`;
-        if (seenTrails.has(edgeId)) {
+        if (enableSingleRoute && seenTrails.has(edgeId)) {
           continue;
         }
         trailScore++;
@@ -92,6 +92,6 @@ const solve1 = (): number => {
   return trailScoreSum;
 };
 
-const solve2 = () => {};
+const solve2 = () => solve1(false);
 
-console.log(timeFunction(() => solve1()));
+console.log(timeFunction(() => solve2()));
