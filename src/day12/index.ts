@@ -19,9 +19,6 @@ const getNeighbors = (x: number, y: number): [number, number][] => [
   [x, y + 1],
 ];
 
-const containsOppositeNeighbors = (list: ReturnType<typeof getNeighbors>) =>
-  list.length > 1 && list[0][1] === list[1][1];
-
 const validNeighbors =
   (type: Region["type"]) =>
   ([x, y]: [number, number]) =>
@@ -69,25 +66,18 @@ const getAllRegions = () => {
 
         seenPlots.add(id);
 
-        let moreNeighbors = getNeighbors(x1, y1).filter(
+        const moreNeighbors = getNeighbors(x1, y1).filter(
           validNeighbors(newRegion.type)
         );
 
         newRegion.area += 1;
         newRegion.perimeter += 4 - moreNeighbors.length;
 
-        moreNeighbors = moreNeighbors.filter(
+        const newNeighbors = moreNeighbors.filter(
           (neighbor) => !seenPlots.has(getId(...neighbor))
         );
 
-        if (moreNeighbors.length === 0) {
-          newRegion.side += 3;
-        }
-        if (moreNeighbors.length === 1) {
-          newRegion.side += 1;
-        }
-
-        plotsToExplore.push(...moreNeighbors);
+        plotsToExplore.push(...newNeighbors);
       }
 
       regions.push(newRegion);
@@ -114,4 +104,4 @@ const solve2 = () => {
   return regions.reduce((sum, region) => sum + region.side * region.area, 0);
 };
 
-console.log(timeFunction(() => solve1()));
+console.log(timeFunction(() => solve2()));
