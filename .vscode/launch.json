@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "command": "npx tsx src/day9",
+            "command": "npx tsx src/day12",
             "name": "Debug",
             "request": "launch",
             "type": "node-terminal"
