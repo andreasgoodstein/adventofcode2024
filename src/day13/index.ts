@@ -53,22 +53,38 @@ const solveProblem = ({
   prizeX,
   prizeY,
 }: Problem): [number, number] => {
-  let aCount = 0;
-  let bCount = 0;
+  const d = aX * bY - aY * bX;
+  const dX = prizeX * bY - prizeY * bX;
+  const dY = prizeY * aX - prizeX * aY;
 
-  while (prizeX > 0 && prizeY > 0) {
-    if (prizeX % bX === 0 && prizeY % bY === 0 && prizeX / bX === prizeY / bY) {
-      bCount = prizeX / bX;
-      return [aCount, bCount];
-    }
+  const aCount = dX / d;
+  const bCount = dY / d;
 
-    prizeX -= aX;
-    prizeY -= aY;
-
-    aCount++;
+  if (aCount % 1 !== 0) {
+    return [0, 0];
   }
 
-  return [0, 0];
+  return [aCount, bCount];
 };
 
-console.log(timeFunction(() => solve1()));
+const OFFSET = 10_000_000_000_000;
+
+const solve2 = () => {
+  let tokens = 0;
+
+  const solutions = problems.map((problem) => {
+    return solveProblem({
+      ...problem,
+      prizeX: problem.prizeX + OFFSET,
+      prizeY: problem.prizeY + OFFSET,
+    });
+  });
+
+  solutions.forEach(([aCount, bCount]) => {
+    tokens += aCount * 3 + bCount;
+  });
+
+  return tokens;
+};
+
+console.log(timeFunction(() => solve2()));
